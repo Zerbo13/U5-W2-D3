@@ -1,9 +1,11 @@
 package Mattiazerbini.U5_W2_D3.controllers;
 
 import Mattiazerbini.U5_W2_D3.entities.Autore;
+import Mattiazerbini.U5_W2_D3.entities.Post;
 import Mattiazerbini.U5_W2_D3.payloads.AutorePayload;
 import Mattiazerbini.U5_W2_D3.services.AutoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +24,14 @@ public class AutoreController {
 
     //LISTA DI AUTORI (GET)
     @GetMapping
-    public List<Autore> findAll() {
-        return this.autoreService.findAll();
+    public Page<Autore> findAll(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(defaultValue = "surname") String orderBy,
+                              @RequestParam(defaultValue = "asc") String sortCriteria) {
+
+        return this.autoreService.findAll(page, size, orderBy, sortCriteria);
     }
+
 
     //RITORNA UN SINGOLO AUTORE (GET)
     @GetMapping("/{idAutore}")

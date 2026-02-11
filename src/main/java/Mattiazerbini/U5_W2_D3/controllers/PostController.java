@@ -4,6 +4,7 @@ import Mattiazerbini.U5_W2_D3.entities.Post;
 import Mattiazerbini.U5_W2_D3.payloads.PostPayload;
 import Mattiazerbini.U5_W2_D3.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +23,14 @@ public class PostController {
 
     //LISTA DI POST (GET)
     @GetMapping
-    public List<Post> findAll() {
-        return this.postService.findAll();
+    public Page<Post> findAll(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(defaultValue = "surname") String orderBy,
+                              @RequestParam(defaultValue = "asc") String sortCriteria) {
+
+        return this.postService.findAll(page, size, orderBy, sortCriteria);
     }
+
 
     //RITORNA UN SINGOLO POST (GET)
     @GetMapping("/{idPost}")
