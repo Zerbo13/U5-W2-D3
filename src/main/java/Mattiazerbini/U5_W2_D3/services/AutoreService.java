@@ -45,10 +45,15 @@ public class AutoreService {
     public Page<Autore> findAll(int page, int size, String orderBy, String sortCriteria) {
         if (size > 100 || size < 0) size = 10;
         if (page < 0) page = 0;
-        Pageable pageable = PageRequest.of(page, size,
-                sortCriteria.equals("desc") ? Sort.by(orderBy).descending() : Sort.by(orderBy));
+        List<String> validFields = List.of("id", "nome", "cognome", "email"); // metti tutti i campi reali
+        if (!validFields.contains(orderBy)) {
+            orderBy = "id";
+        }
+        Sort sort = sortCriteria.equals("desc") ? Sort.by(orderBy).descending() : Sort.by(orderBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         return this.autoreRepository.findAll(pageable);
     }
+
 
     public Autore findById(long idAutore){
         return this.autoreRepository.findById(idAutore)
