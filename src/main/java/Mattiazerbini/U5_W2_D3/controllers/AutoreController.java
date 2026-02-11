@@ -32,14 +32,12 @@ public class AutoreController {
         return this.autoreService.findById(idAutore);
     }
 
-
     //CREAZIONE DI UN NUOVO AUTORE (POST)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) // 201
     public Autore createAutore(@RequestBody AutorePayload payload) {
         return this.autoreService.salvaAutore(payload);
     }
-
 
 
     //MODIFICA LO SPECIFICO AUTORE (PUT)

@@ -31,8 +31,5 @@ public class Autore {
         this.cognome = cognome;
         this.email = email;
         this.dataDiNascita = dataDiNascita;
-        this.avatar = "https://ui-avatars.com/api/?name=" +nome+ "+" +cognome;
-        Random random = new Random();
-        this.id = random.nextInt(1,100);
     }
 }

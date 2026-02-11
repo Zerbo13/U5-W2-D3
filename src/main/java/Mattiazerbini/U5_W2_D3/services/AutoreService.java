@@ -3,9 +3,12 @@ package Mattiazerbini.U5_W2_D3.services;
 import Mattiazerbini.U5_W2_D3.entities.Autore;
 
 import Mattiazerbini.U5_W2_D3.exception.NotFoundException;
+import Mattiazerbini.U5_W2_D3.exception.ValidationException;
 import Mattiazerbini.U5_W2_D3.payloads.AutorePayload;
+import Mattiazerbini.U5_W2_D3.repositories.AutoreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,50 +18,48 @@ import java.util.List;
 @Slf4j
 public class AutoreService {
 
-    private List<Autore> autoreDB = new ArrayList<>();
+    private final AutoreRepository autoreRepository;
 
-    public List<Autore> findAll(){
-        return this.autoreDB;
+    @Autowired
+    public AutoreService(AutoreRepository autoreRepository) {
+        this.autoreRepository = autoreRepository;
     }
 
     public Autore salvaAutore(AutorePayload payload){
-        Autore newAutore = new Autore(payload.getNome(), payload.getCognome(),
+       if(this.autoreRepository.existsByEmail(payload.getEmail())){
+            throw new ValidationException("Questa mail" + payload.getEmail() + "è gia registrata");
+        }
+       Autore newAutore = new Autore(payload.getNome(), payload.getCognome(),
                 payload.getEmail(), payload.getDataDiNascita());
-        this.autoreDB.add(newAutore);
-        log.info("L'utente "+newAutore.getNome()+ newAutore.getCognome()+ " è stato inserito!");
-        return newAutore;
+        newAutore.setAvatar("https://ui-avatars.com/api?name=" + payload.getNome() + "+" + payload.getCognome());
+        Autore autoreSalvato = this.autoreRepository.save(newAutore);
+        log.info("L'utente "+newAutore.getNome()+" " +newAutore.getCognome()+ " è stato inserito!");
+        return autoreSalvato;
     }
 
     public Autore findById(long idAutore){
-        Autore find = null;
-        for (Autore user : this.autoreDB) {
-            if (user.getId() == idAutore) find = user;
-        }
-        if (find == null) throw new NotFoundException(idAutore);
-        return find;
+        return this.autoreRepository.findById(idAutore)
+                .orElseThrow(() -> new NotFoundException(idAutore));
     }
 
     public Autore findByIdAndUpdate(long idAutore, AutorePayload payload) {
-        Autore find = null;
-        for (Autore autore : this.autoreDB) {
-            if (autore.getId() == idAutore) {
+        Autore find = this.findById(idAutore);
+        Autore autore = null;
+        if (autore.getId() == idAutore) {
                 find = autore;
                 find.setNome(payload.getNome());
                 find.setCognome(payload.getCognome());
                 find.setEmail(payload.getEmail());
                 find.setDataDiNascita(payload.getDataDiNascita());
+            find.setAvatar("https://ui-avatars.com/api?name=" + payload.getNome() + "+" + payload.getCognome());
             }
-        }
-        if (find == null) throw new NotFoundException(idAutore);
-        return find;
+        Autore autoreModificato = this.autoreRepository.save(find);
+        log.info("L'utente "+autoreModificato.getId()+" è stato modificato");
+        return autoreModificato;
     }
 
     public void findByIdAndDelete(long idAutore) {
-        Autore find = null;
-        for (Autore autore : this.autoreDB) {
-            if (autore.getId() == idAutore) find = autore;
-        }
-        if (find == null) throw new NotFoundException(idAutore);
-        this.autoreDB.remove(find);
+        Autore find = this.findById(idAutore);
+        this.autoreRepository.delete(find);
     }
 }
